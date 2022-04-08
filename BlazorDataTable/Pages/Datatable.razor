@@ -1,0 +1,63 @@
+﻿@page "/datatable"
+@using BlazorDataTable.Data
+@inject IJSRuntime JS
+@inject ApplicationDbContext _db;
+@implements IDisposable
+
+<h3>Dtatable Example</h3>
+
+<table id="table_id" class="table table-border table-hover">
+    <thead>
+        <tr>
+            <th> Id</th>
+            <th> FirstName</th>
+            <th> LastName</th>
+            <th> HireDate</th>
+            <th> Email</th>
+            <th> PhoneNumber</th>
+            <th>Salary</th>
+            <th> ManagerId</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in employees)
+        {
+            <tr>
+                <td> @item.Id</td>
+                <td> @item.FirstName</td>
+                <td> @item.LastName</td>
+                <td> @item.HireDate</td>
+                <td> @item.Email</td>
+                <td> @item.PhoneNumber</td>
+                <td> @item.Salary</td>
+                <td> @item.ManagerId</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    List<Employee> employees = new List<Employee>();
+
+
+    protected override void OnInitialized()
+    {
+        employees = _db.Employees.ToList();
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            await JS.InvokeAsync<IJSObjectReference>("DataTablesAdd", "#table_id");
+
+        }
+    }
+
+    public void Dispose()
+    {
+        JS.InvokeAsync<IJSObjectReference>("DataTablesRemove", "#table_id");
+    }
+
+}
